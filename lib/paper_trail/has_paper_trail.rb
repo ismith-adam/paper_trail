@@ -129,6 +129,17 @@ module PaperTrail
     # Wrap the following methods in a module so we can include them only in the
     # ActiveRecord models that declare `has_paper_trail`.
     module InstanceMethods
+      # cut from latest version
+       def touch_with_version(name = nil)
+         raise ActiveRecordError, "can not touch on a new record object" unless persisted?
+        attributes = timestamp_attributes_for_update_in_model
+        attributes << name if name
+        current_time = current_time_from_proper_timezone
+        attributes.each { |column| write_attribute(column, current_time) }
+        save!
+      end
+      
+      
       # Returns true if this instance is the current, live one;
       # returns false if this instance came from a previous version.
       def live?
